@@ -1,7 +1,8 @@
 import { Router } from "express";
 import passport from "passport";
 import { configureGoogleStrategy } from "../config/google.passport.js";
-import * as authController from "../controllers/auth.controller.js";
+import * as authController from "../services/auth.controller.js";
+import authRevokeController from "../controllers/auth.revoke.controller.js";
 import { isAuth } from "../middlewares/isAuth.middleware.js";
 
 const router = Router();
@@ -13,19 +14,28 @@ configureGoogleStrategy();
  * POST /api/auth/signup
  * Register a new user
  */
-router.post("/signup", authController.signup);
+import { validate } from "../middlewares/validate.middleware.js";
+import { signupSchema, otpSchema, loginSchema } from "../utils/validators.js";
+
+router.post("/signup", validate(signupSchema), authController.signupRequest);
+router.post(
+  "/verify-otp",
+  validate(otpSchema),
+  authController.verifyOTPHandler,
+);
 
 /**
  * POST /api/auth/login
  * Login with email and password
  */
-router.post("/login", authController.login);
+router.post("/login", validate(loginSchema), authController.login);
 
 /**
  * POST /api/auth/logout
  * Logout user (requires authentication)
  */
 router.post("/logout", isAuth, authController.logout);
+router.post("/logout-all", isAuth, authRevokeController.logoutAll);
 
 /**
  * POST /api/auth/refresh

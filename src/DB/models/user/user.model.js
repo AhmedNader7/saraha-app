@@ -45,6 +45,10 @@ const schema = new Schema(
       type: Boolean,
       default: false,
     },
+    profilePicture: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true,

@@ -51,7 +51,8 @@ export async function send(req, res, next) {
  */
 export async function sendByUsername(req, res, next) {
   try {
-    const { publicUsername, content } = req.body;
+    const { content } = req.body;
+    const { publicUsername } = req.params;
     const User = (await import("../DB/models/user/user.model.js")).default;
 
     if (!publicUsername || !content) {

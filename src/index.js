@@ -7,6 +7,7 @@ import config from "./config/index.js";
 import connectDB from "./DB/connection.js";
 import authRoutes from "./routes/auth.routes.js";
 import messageRoutes from "./routes/message.routes.js";
+import profileRoutes from "./routes/profile.routes.js";
 import {
   errorHandler,
   notFound,
@@ -17,6 +18,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use('/public', express.static('public'));
+app.use('/uploads', express.static('public/uploads'));
 
 app.use(
   cors({
@@ -31,6 +34,7 @@ app.use(passport.initialize());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/profile", profileRoutes);
 
 app.get("/health", (req, res) => {
   res.json({
@@ -45,7 +49,6 @@ app.use(errorHandler);
 
 async function startServer() {
   try {
-
     await connectDB();
 
     app.listen(config.port, () => {

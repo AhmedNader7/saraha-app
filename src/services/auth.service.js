@@ -2,6 +2,7 @@ import User from "../DB/models/user/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import config from "../config/index.js";
+import redis from "../config/redis.js";
 
 /**
  * Hash a password
@@ -115,6 +116,10 @@ export async function loginUser(email, password) {
     throw new Error("Invalid credentials");
   }
 
+  if (!user.isVerified) {
+    throw new Error("Account not verified. Please verify your email.");
+  }
+
   if (!user.password) {
     throw new Error("Please login with Google");
   }
@@ -157,6 +162,17 @@ export async function refreshAccessToken(refreshToken) {
 
     if (!user || user.refreshToken !== refreshToken) {
       throw new Error("Invalid refresh token");
+    }
+
+    // Check Redis blacklist (optional)
+    let blacklisted = false;
+    try {
+      blacklisted = await redis.get(`blacklist:${refreshToken}`);
+    } catch (error) {
+      // Redis not available, assume not blacklisted
+    }
+    if (blacklisted) {
+      throw new Error("Token revoked");
     }
 
     // Generate new access token

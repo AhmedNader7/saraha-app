@@ -10,9 +10,13 @@ export async function logoutAll(req, res, next) {
     const refreshToken = req.cookies.refreshToken;
 
     if (refreshToken) {
-      // Blacklist current token
-      const ttl = 7 * 24 * 60 * 60; // 7 days
-      await redis.setex(`blacklist:${refreshToken}`, ttl, "1");
+      // Blacklist current token (optional)
+      try {
+        const ttl = 7 * 24 * 60 * 60; // 7 days
+        await redis.setex(`blacklist:${refreshToken}`, ttl, "1");
+      } catch (error) {
+        // Redis not available, skip blacklisting
+      }
     }
 
     // Clear DB refreshToken

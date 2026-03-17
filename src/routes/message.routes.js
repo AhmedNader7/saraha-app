@@ -14,7 +14,10 @@ router.post("/send", isAuth, messageController.send);
  * POST /api/messages/send/:publicUsername
  * Send an anonymous message to a user by public username (public endpoint)
  */
-router.post("/send/:publicUsername", messageController.sendByUsername);
+import { validate } from "../middlewares/validate.middleware.js";
+import { messageSchema } from "../utils/validators.js";
+
+router.post("/send/:publicUsername", validate(messageSchema), messageController.sendByUsername);
 
 /**
  * GET /api/messages/inbox
