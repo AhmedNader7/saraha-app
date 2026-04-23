@@ -4,6 +4,7 @@ import { configureGoogleStrategy } from "../config/google.passport.js";
 import * as authController from "../services/auth.controller.js";
 import authRevokeController from "../controllers/auth.revoke.controller.js";
 import { isAuth } from "../middlewares/isAuth.middleware.js";
+import { authRateLimiter } from "../middlewares/rateLimit.middleware.js";
 
 const router = Router();
 
@@ -17,9 +18,15 @@ configureGoogleStrategy();
 import { validate } from "../middlewares/validate.middleware.js";
 import { signupSchema, otpSchema, loginSchema } from "../utils/validators.js";
 
-router.post("/signup", validate(signupSchema), authController.signupRequest);
+router.post(
+  "/signup",
+  authRateLimiter,
+  validate(signupSchema),
+  authController.signupRequest,
+);
 router.post(
   "/verify-otp",
+  authRateLimiter,
   validate(otpSchema),
   authController.verifyOTPHandler,
 );
@@ -28,7 +35,12 @@ router.post(
  * POST /api/auth/login
  * Login with email and password
  */
-router.post("/login", validate(loginSchema), authController.login);
+router.post(
+  "/login",
+  authRateLimiter,
+  validate(loginSchema),
+  authController.login,
+);
 
 /**
  * POST /api/auth/logout

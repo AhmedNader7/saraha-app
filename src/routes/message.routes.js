@@ -1,6 +1,7 @@
 import { Router } from "express";
 import * as messageController from "../controllers/message.controller.js";
 import { isAuth } from "../middlewares/isAuth.middleware.js";
+import { strictMessageRateLimiter } from "../middlewares/rateLimit.middleware.js";
 
 const router = Router();
 
@@ -17,7 +18,12 @@ router.post("/send", isAuth, messageController.send);
 import { validate } from "../middlewares/validate.middleware.js";
 import { messageSchema } from "../utils/validators.js";
 
-router.post("/send/:publicUsername", validate(messageSchema), messageController.sendByUsername);
+router.post(
+  "/send/:publicUsername",
+  strictMessageRateLimiter,
+  validate(messageSchema),
+  messageController.sendByUsername,
+);
 
 /**
  * GET /api/messages/inbox

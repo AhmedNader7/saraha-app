@@ -7,7 +7,8 @@ import crypto from "crypto";
  * Generate a random 6-digit OTP code
  */
 function generateOTPCode() {
-  return crypto.randomInt(100000, 999999).toString();
+  // randomInt is cryptographically secure and avoids Math.random weaknesses.
+  return crypto.randomInt(0, 1000000).toString().padStart(6, "0");
 }
 
 /**
@@ -16,7 +17,7 @@ function generateOTPCode() {
  * @param {string} purpose - Purpose of OTP (signup, login, reset)
  */
 export async function generateAndSendOTP(email, purpose) {
-  const code = "123456"; // Fixed for testing
+  const code = generateOTPCode();
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
   // Check if user exists for signup
